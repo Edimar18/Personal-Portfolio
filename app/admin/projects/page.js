@@ -16,6 +16,7 @@ export default function ProjectsPage() {
   const { data, addProject, updateProject, deleteProject } = usePortfolio()
   const [editingId, setEditingId] = useState(null)
   const [isCreating, setIsCreating] = useState(false)
+  const [filterCategory, setFilterCategory] = useState('all')
   const [formData, setFormData] = useState({
     name: '',
     full: '',
@@ -23,8 +24,21 @@ export default function ProjectsPage() {
     description: '',
     tags: [],
     accent: '#C8FF00',
+    category: 'academic',
+    featured: false,
+    githubUrl: '',
+    liveUrl: '',
+    image: '',
   })
   const [tagInput, setTagInput] = useState('')
+
+  const categories = data?.projectCategories || []
+  const allProjects = data?.projects || []
+
+  // Filter projects by category
+  const filteredProjects = filterCategory === 'all' 
+    ? allProjects 
+    : allProjects.filter(p => p.category === filterCategory)
 
   const resetForm = () => {
     setFormData({
@@ -34,12 +48,24 @@ export default function ProjectsPage() {
       description: '',
       tags: [],
       accent: '#C8FF00',
+      category: 'academic',
+      featured: false,
+      githubUrl: '',
+      liveUrl: '',
+      image: '',
     })
     setTagInput('')
   }
 
   const handleEdit = (project) => {
-    setFormData({ ...project })
+    setFormData({ 
+      ...project,
+      category: project.category || 'academic',
+      featured: project.featured || false,
+      githubUrl: project.githubUrl || '',
+      liveUrl: project.liveUrl || '',
+      image: project.image || '',
+    })
     setEditingId(project.id)
     setIsCreating(false)
   }
@@ -96,6 +122,16 @@ export default function ProjectsPage() {
     }))
   }
 
+  const getCategoryLabel = (categoryId) => {
+    const cat = categories.find(c => c.id === categoryId)
+    return cat ? cat.label : categoryId
+  }
+
+  const getCategoryColor = (categoryId) => {
+    const cat = categories.find(c => c.id === categoryId)
+    return cat ? cat.color : '#C8FF00'
+  }
+
   return (
     <div>
       <div
@@ -104,6 +140,8 @@ export default function ProjectsPage() {
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: '32px',
+          flexWrap: 'wrap',
+          gap: '16px',
         }}
       >
         <div>
@@ -124,7 +162,7 @@ export default function ProjectsPage() {
               color: 'var(--muted)',
             }}
           >
-            Manage your portfolio projects ({data.projects.length} total)
+            Manage all your projects — academic, GitHub, community, hobby, and random
           </p>
         </div>
         <button
@@ -168,6 +206,49 @@ export default function ProjectsPage() {
         </button>
       </div>
 
+      {/* Category Filter */}
+      <div style={{ marginBottom: '24px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => setFilterCategory('all')}
+          style={{
+            padding: '8px 16px',
+            background: filterCategory === 'all' ? 'var(--accent)15' : 'var(--surface)',
+            border: `1px solid ${filterCategory === 'all' ? 'var(--accent)' : 'var(--border)'}`,
+            borderRadius: '6px',
+            color: filterCategory === 'all' ? 'var(--accent)' : 'var(--text-secondary)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '12px',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+          }}
+        >
+          All ({allProjects.length})
+        </button>
+        {categories.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => setFilterCategory(cat.id)}
+            style={{
+              padding: '8px 16px',
+              background: filterCategory === cat.id ? `${cat.color}15` : 'var(--surface)',
+              border: `1px solid ${filterCategory === cat.id ? cat.color : 'var(--border)'}`,
+              borderRadius: '6px',
+              color: filterCategory === cat.id ? cat.color : 'var(--text-secondary)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '12px',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+            }}
+          >
+            <span>{cat.icon}</span>
+            {cat.label} ({allProjects.filter(p => p.category === cat.id).length})
+          </button>
+        ))}
+      </div>
+
       {/* Project Form */}
       {(isCreating || editingId !== null) && (
         <div
@@ -197,6 +278,89 @@ export default function ProjectsPage() {
               gap: '20px',
             }}
           >
+            {/* Category & Featured Row */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '20px',
+              }}
+            >
+              <div>
+                <label
+                  style={{
+                    display: 'block',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '11px',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    color: 'var(--muted)',
+                    marginBottom: '8px',
+                  }}
+                >
+                  Category *
+                </label>
+                <select
+                  value={formData.category}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, category: e.target.value }))
+                  }
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    background: 'var(--bg)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    color: 'var(--text)',
+                    fontSize: '15px',
+                    fontFamily: 'var(--font-body)',
+                    outline: 'none',
+                    cursor: 'pointer',
+                  }}
+                  onFocus={(e) =>
+                    (e.target.style.borderColor = 'var(--accent)')
+                  }
+                  onBlur={(e) =>
+                    (e.target.style.borderColor = 'var(--border)')
+                  }
+                >
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.icon} {cat.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '14px 16px',
+                    background: 'var(--bg)',
+                    border: `1px solid ${formData.featured ? 'var(--accent)' : 'var(--border)'}`,
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    flex: 1,
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.featured}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, featured: e.target.checked }))
+                    }
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                  />
+                  <span style={{ color: formData.featured ? 'var(--accent)' : 'var(--text-secondary)', fontSize: '14px' }}>
+                    Featured on Homepage
+                  </span>
+                </label>
+              </div>
+            </div>
+
             <div
               style={{
                 display: 'grid',
@@ -205,7 +369,7 @@ export default function ProjectsPage() {
               }}
             >
               <FormField
-                label="Project Name"
+                label="Project Name *"
                 value={formData.name}
                 onChange={(v) =>
                   setFormData((prev) => ({ ...prev, name: v }))
@@ -231,6 +395,32 @@ export default function ProjectsPage() {
               placeholder="e.g., Lead Developer · IoT Engineer"
             />
 
+            {/* URLs */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                gap: '20px',
+              }}
+            >
+              <FormField
+                label="GitHub URL"
+                value={formData.githubUrl}
+                onChange={(v) =>
+                  setFormData((prev) => ({ ...prev, githubUrl: v }))
+                }
+                placeholder="https://github.com/username/repo"
+              />
+              <FormField
+                label="Live Demo URL"
+                value={formData.liveUrl}
+                onChange={(v) =>
+                  setFormData((prev) => ({ ...prev, liveUrl: v }))
+                }
+                placeholder="https://your-project.vercel.app"
+              />
+            </div>
+
             <div>
               <label
                 style={{
@@ -243,7 +433,7 @@ export default function ProjectsPage() {
                   marginBottom: '8px',
                 }}
               >
-                Description
+                Description *
               </label>
               <textarea
                 value={formData.description}
@@ -516,7 +706,7 @@ export default function ProjectsPage() {
           gap: '12px',
         }}
       >
-        {data.projects.map((project, index) => (
+        {filteredProjects.map((project, index) => (
           <div
             key={project.id}
             style={{
@@ -554,20 +744,54 @@ export default function ProjectsPage() {
                   justifyContent: 'space-between',
                   alignItems: 'flex-start',
                   marginBottom: '8px',
+                  flexWrap: 'wrap',
+                  gap: '12px',
                 }}
               >
                 <div>
-                  <h3
-                    style={{
-                      fontFamily: 'var(--font-syne)',
-                      fontWeight: 700,
-                      fontSize: '18px',
-                      color: 'var(--text)',
-                      marginBottom: '4px',
-                    }}
-                  >
-                    {project.name}
-                  </h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
+                    <h3
+                      style={{
+                        fontFamily: 'var(--font-syne)',
+                        fontWeight: 700,
+                        fontSize: '18px',
+                        color: 'var(--text)',
+                      }}
+                    >
+                      {project.name}
+                    </h3>
+                    {/* Category Badge */}
+                    <span
+                      style={{
+                        padding: '4px 10px',
+                        background: `${getCategoryColor(project.category)}15`,
+                        border: `1px solid ${getCategoryColor(project.category)}40`,
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        color: getCategoryColor(project.category),
+                        fontFamily: 'var(--font-mono)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                      }}
+                    >
+                      {getCategoryLabel(project.category)}
+                    </span>
+                    {project.featured && (
+                      <span
+                        style={{
+                          padding: '4px 10px',
+                          background: 'var(--accent)20',
+                          border: '1px solid var(--accent)',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          color: 'var(--accent)',
+                          fontFamily: 'var(--font-mono)',
+                        }}
+                      >
+                        ★ Featured
+                      </span>
+                    )}
+                  </div>
                   <p
                     style={{
                       fontSize: '13px',
@@ -619,6 +843,46 @@ export default function ProjectsPage() {
                   </button>
                 </div>
               </div>
+
+              {/* Links */}
+              {(project.githubUrl || project.liveUrl) && (
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                  {project.githubUrl && (
+                    <a
+                      href={project.githubUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        fontSize: '12px',
+                        color: 'var(--text-secondary)',
+                        textDecoration: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                    >
+                      <span>⚡</span> GitHub
+                    </a>
+                  )}
+                  {project.liveUrl && (
+                    <a
+                      href={project.liveUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        fontSize: '12px',
+                        color: 'var(--text-secondary)',
+                        textDecoration: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                      }}
+                    >
+                      <span>↗</span> Live Demo
+                    </a>
+                  )}
+                </div>
+              )}
 
               <p
                 style={{
@@ -672,7 +936,7 @@ export default function ProjectsPage() {
           </div>
         ))}
 
-        {data.projects.length === 0 && (
+        {filteredProjects.length === 0 && (
           <div
             style={{
               padding: '48px',
@@ -683,7 +947,9 @@ export default function ProjectsPage() {
             }}
           >
             <p style={{ color: 'var(--muted)', fontSize: '15px' }}>
-              No projects yet. Click "Add Project" to get started.
+              {filterCategory === 'all' 
+                ? 'No projects yet. Click "Add Project" to get started.'
+                : `No projects in ${getCategoryLabel(filterCategory)} category.`}
             </p>
           </div>
         )}
@@ -692,7 +958,7 @@ export default function ProjectsPage() {
   )
 }
 
-function FormField({ label, value, onChange, placeholder }) {
+function FormField({ label, value, onChange, placeholder, type = 'text' }) {
   return (
     <div>
       <label
@@ -709,7 +975,7 @@ function FormField({ label, value, onChange, placeholder }) {
         {label}
       </label>
       <input
-        type="text"
+        type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}

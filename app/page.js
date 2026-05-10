@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import Link from 'next/link'
 import { PortfolioProvider, usePortfolio } from './lib/PortfolioContext'
 import { DEFAULT_DATA } from './lib/portfolioData'
 
@@ -235,6 +236,10 @@ function Navbar({ active }) {
               {l}
             </a>
           ))}
+          <Link href="/projects" className="nav-link" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ color: 'var(--accent)' }}>⚡</span>
+            All Projects
+          </Link>
         </div>
 
         <a href="mailto:edimar.mosquida@example.com" className="hidden md:inline-flex btn-primary" style={{ padding: '10px 20px', fontSize: '11px' }}>
@@ -255,6 +260,10 @@ function Navbar({ active }) {
             {l}
           </a>
         ))}
+        <Link href="/projects" onClick={() => setMenuOpen(false)} style={{ fontFamily: 'var(--font-syne)', fontWeight: 700, fontSize: '32px', color: 'var(--accent)', textDecoration: 'none', textTransform: 'uppercase', letterSpacing: '-0.02em', transition: 'color 0.2s, transform 0.2s', transform: menuOpen ? 'translateY(0)' : 'translateY(20px)', opacity: menuOpen ? 1 : 0, transitionDelay: `${links.length * 50}ms`, display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <span>⚡</span>
+          All Projects
+        </Link>
         <a href="mailto:edimar.mosquida@example.com" className="btn-primary" onClick={() => setMenuOpen(false)} style={{ marginTop: '20px' }}>
           Hire Me
         </a>
@@ -580,6 +589,10 @@ function Skills({ data }) {
 function Projects({ data }) {
   const [hovered, setHovered] = useState(null)
   const projects = data?.projects || []
+  
+  // Show only featured projects on homepage
+  const featuredProjects = projects.filter(p => p.featured)
+  const totalProjects = projects.length
 
   return (
     <section id="projects" style={{ padding: 'clamp(80px,10vw,140px) clamp(20px,5vw,80px)', borderTop: '1px solid var(--border)' }}>
@@ -593,11 +606,11 @@ function Projects({ data }) {
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {projects.length === 0 ? (
+          {featuredProjects.length === 0 ? (
             <div style={{ padding: '48px', textAlign: 'center', background: 'var(--surface)', border: '1px dashed var(--border)', borderRadius: '12px' }}>
-              <p style={{ color: 'var(--muted)', fontSize: '15px' }}>No projects yet. Add some in the admin panel!</p>
+              <p style={{ color: 'var(--muted)', fontSize: '15px' }}>No featured projects yet. Add some in the admin panel!</p>
             </div>
-          ) : projects.map((p, i) => (
+          ) : featuredProjects.map((p, i) => (
             <div key={p.id} className="reveal project-card" data-delay={i * 100} onMouseEnter={() => setHovered(p.id)} onMouseLeave={() => setHovered(null)} style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto', gap: '0', alignItems: 'stretch', background: hovered === p.id ? 'var(--surface-2)' : 'var(--surface)', borderRadius: '12px', cursor: 'default' }}>
               <div style={{ padding: '28px 24px', borderRight: '1px solid var(--border)', display: 'flex', alignItems: 'flex-start' }}>
                 <span style={{ fontFamily: 'var(--font-syne)', fontWeight: 800, fontSize: '36px', lineHeight: 1, color: hovered === p.id ? p.accent : 'var(--border)', transition: 'color 0.3s' }}>
@@ -622,6 +635,42 @@ function Projects({ data }) {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* View All Projects Link */}
+        <div className="reveal" data-delay="400" style={{ marginTop: '48px', textAlign: 'center' }}>
+          <Link 
+            href="/projects" 
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '16px 32px',
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '10px',
+              color: 'var(--text)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '14px',
+              textDecoration: 'none',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--accent)'
+              e.currentTarget.style.color = 'var(--accent)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 8px 24px rgba(200, 255, 0, 0.1)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border)'
+              e.currentTarget.style.color = 'var(--text)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+            }}
+          >
+            <span>View All {totalProjects} Projects</span>
+            <span style={{ transition: 'transform 0.3s ease' }}>→</span>
+          </Link>
         </div>
       </div>
     </section>
