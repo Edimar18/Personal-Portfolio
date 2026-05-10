@@ -406,70 +406,156 @@ function About({ data }) {
 
 function Skills({ data }) {
   const skills = data?.skills || []
+  const [hoveredCard, setHoveredCard] = useState(null)
+  const [animatedSkills, setAnimatedSkills] = useState(new Set())
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const allSkills = new Set()
+      skills.forEach((cat, ci) => {
+        cat.items.forEach((_, si) => {
+          setTimeout(() => {
+            setAnimatedSkills(prev => new Set([...prev, `${ci}-${si}`]))
+          }, ci * 200 + si * 100)
+        })
+      })
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [skills])
   
   return (
-    <section id="skills" className="skills-section" style={{ padding: 'clamp(80px,10vw,140px) clamp(20px,5vw,80px)', borderTop: '1px solid var(--border)', background: 'var(--surface)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <section id="skills" className="skills-section" style={{ padding: 'clamp(80px,10vw,140px) clamp(20px,5vw,80px)', borderTop: '1px solid var(--border)', background: 'var(--surface)', position: 'relative', overflow: 'hidden' }}>
+      {/* Background decoration */}
+      <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '600px', height: '600px', background: 'radial-gradient(circle, rgba(200,255,0,0.03) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      
+      <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
         <div className="section-label reveal" style={{ marginBottom: '16px' }}>Technical Skills</div>
-        <h2 className="display-heading reveal" data-delay="100" style={{ fontSize: 'clamp(32px, 5vw, 64px)', marginBottom: '56px' }}>
+        <h2 className="display-heading reveal" data-delay="100" style={{ fontSize: 'clamp(32px, 5vw, 64px)', marginBottom: '16px' }}>
           What I <span style={{ WebkitTextStroke: '1px var(--text)', color: 'transparent', fontStyle: 'italic' }}>build</span> with.
         </h2>
+        <p className="reveal" data-delay="200" style={{ color: 'var(--text-secondary)', fontSize: '16px', marginBottom: '56px', maxWidth: '600px' }}>
+          Technologies and tools I use to bring ideas to life — from embedded systems to full-stack applications.
+        </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
           {skills.map((cat, ci) => (
-            <div key={cat.category} className="reveal hover-lift" data-delay={ci * 100} style={{ 
-              background: 'linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%)', 
-              padding: '32px 28px', 
-              position: 'relative', 
-              overflow: 'hidden',
-              borderRadius: '12px',
-              border: `1px solid ${cat.color}20`,
-              boxShadow: `0 4px 24px ${cat.color}08, inset 0 1px 0 ${cat.color}10`,
-              transition: 'all 0.3s ease'
-            }}>
-              {/* Top accent line */}
+            <div 
+              key={cat.category} 
+              className="reveal skill-card" 
+              data-delay={ci * 150}
+              onMouseEnter={() => setHoveredCard(ci)}
+              onMouseLeave={() => setHoveredCard(null)}
+              style={{ 
+                background: hoveredCard === ci 
+                  ? `linear-gradient(145deg, var(--surface-2) 0%, var(--surface-3) 100%)`
+                  : 'linear-gradient(145deg, var(--surface) 0%, var(--surface-2) 100%)',
+                padding: '36px 32px', 
+                position: 'relative', 
+                overflow: 'hidden',
+                borderRadius: '16px',
+                border: `1px solid ${hoveredCard === ci ? cat.color + '40' : cat.color + '20'}`,
+                boxShadow: hoveredCard === ci 
+                  ? `0 8px 40px ${cat.color}15, 0 0 0 1px ${cat.color}30, inset 0 1px 0 ${cat.color}20`
+                  : `0 4px 24px ${cat.color}08, inset 0 1px 0 ${cat.color}10`,
+                transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                transform: hoveredCard === ci ? 'translateY(-4px)' : 'translateY(0)'
+              }}
+            >
+              {/* Animated gradient background on hover */}
               <div style={{ 
                 position: 'absolute', 
                 top: 0, 
                 left: 0, 
                 right: 0, 
-                height: '2px', 
-                background: `linear-gradient(90deg, ${cat.color} 0%, ${cat.color}40 50%, transparent 100%)` 
+                bottom: 0,
+                background: hoveredCard === ci 
+                  ? `radial-gradient(circle at 50% 0%, ${cat.color}10 0%, transparent 60%)`
+                  : 'transparent',
+                transition: 'all 0.4s ease',
+                pointerEvents: 'none'
+              }} />
+              
+              {/* Top accent line with animation */}
+              <div style={{ 
+                position: 'absolute', 
+                top: 0, 
+                left: 0, 
+                right: 0, 
+                height: '3px', 
+                background: `linear-gradient(90deg, ${cat.color} 0%, ${cat.color}60 50%, transparent 100%)`,
+                transform: hoveredCard === ci ? 'scaleX(1)' : 'scaleX(0.3)',
+                transformOrigin: 'left',
+                transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
               }} />
               
               {/* Icon and category header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px', position: 'relative' }}>
                 <div style={{ 
-                  width: '44px', 
-                  height: '44px', 
-                  borderRadius: '10px', 
-                  background: `${cat.color}15`,
+                  width: '52px', 
+                  height: '52px', 
+                  borderRadius: '14px', 
+                  background: hoveredCard === ci ? `${cat.color}25` : `${cat.color}15`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '20px',
+                  fontSize: '24px',
                   color: cat.color,
-                  border: `1px solid ${cat.color}25`
+                  border: `2px solid ${hoveredCard === ci ? cat.color + '50' : cat.color + '30'}`,
+                  transition: 'all 0.3s ease',
+                  transform: hoveredCard === ci ? 'scale(1.05) rotate(-2deg)' : 'scale(1) rotate(0deg)'
                 }}>{cat.icon}</div>
-                <div style={{ fontFamily: 'var(--font-syne)', fontWeight: 700, fontSize: '13px', letterSpacing: '0.08em', color: 'var(--text)', textTransform: 'uppercase' }}>{cat.category}</div>
+                <div>
+                  <div style={{ fontFamily: 'var(--font-syne)', fontWeight: 700, fontSize: '14px', letterSpacing: '0.08em', color: 'var(--text)', textTransform: 'uppercase' }}>{cat.category}</div>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--muted)', marginTop: '4px' }}>{cat.items.length} technologies</div>
+                </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-                {cat.items.map((skill) => (
-                  <div key={skill.name}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', alignItems: 'center' }}>
-                      <span style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text-secondary)' }}>{skill.name}</span>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', color: cat.color, background: `${cat.color}15`, padding: '2px 8px', borderRadius: '4px' }}>{skill.level}%</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative' }}>
+                {cat.items.map((skill, si) => (
+                  <div key={skill.name} className="skill-item" style={{ opacity: animatedSkills.has(`${ci}-${si}`) ? 1 : 0, transform: animatedSkills.has(`${ci}-${si}`) ? 'translateX(0)' : 'translateX(-20px)', transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
+                      <span style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 500 }}>{skill.name}</span>
+                      <span style={{ 
+                        fontFamily: 'var(--font-mono)', 
+                        fontSize: '11px', 
+                        color: hoveredCard === ci ? cat.color : 'var(--muted)', 
+                        background: hoveredCard === ci ? `${cat.color}20` : 'var(--surface-3)', 
+                        padding: '4px 10px', 
+                        borderRadius: '6px',
+                        fontWeight: 600,
+                        transition: 'all 0.3s ease'
+                      }}>{skill.level}%</span>
                     </div>
-                    <div className="skill-bar-track" style={{ background: 'var(--surface-3)', height: '4px', borderRadius: '2px' }}>
-                      <div className="skill-bar-fill" style={{ width: `${skill.level}%`, background: `linear-gradient(90deg, ${cat.color} 0%, ${cat.color}dd 100%)`, height: '100%', borderRadius: '2px' }} />
+                    <div className="skill-bar-track" style={{ background: 'var(--surface-3)', height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
+                      <div 
+                        className="skill-bar-fill-animated" 
+                        style={{ 
+                          width: animatedSkills.has(`${ci}-${si}`) ? `${skill.level}%` : '0%',
+                          background: `linear-gradient(90deg, ${cat.color} 0%, ${cat.color}cc 50%, ${cat.color}99 100%)`,
+                          height: '100%',
+                          borderRadius: '3px',
+                          transition: 'width 1s cubic-bezier(0.16, 1, 0.3, 1)',
+                          boxShadow: hoveredCard === ci ? `0 0 10px ${cat.color}50` : 'none'
+                        }} 
+                      />
                     </div>
                   </div>
                 ))}
               </div>
 
-              {/* Corner decoration */}
-              <div style={{ position: 'absolute', top: '12px', right: '12px', width: '6px', height: '6px', borderRadius: '50%', background: cat.color, opacity: 0.6 }} />
+              {/* Corner decoration with pulse animation */}
+              <div style={{ 
+                position: 'absolute', 
+                top: '16px', 
+                right: '16px', 
+                width: '8px', 
+                height: '8px', 
+                borderRadius: '50%', 
+                background: cat.color, 
+                opacity: hoveredCard === ci ? 1 : 0.4,
+                boxShadow: hoveredCard === ci ? `0 0 12px ${cat.color}` : 'none',
+                transition: 'all 0.3s ease'
+              }} />
             </div>
           ))}
         </div>
@@ -548,56 +634,301 @@ function Projects({ data }) {
 
 function Experience({ data }) {
   const experience = data?.experience || []
+  const [hoveredExp, setHoveredExp] = useState(null)
+  const [hoveredSoft, setHoveredSoft] = useState(null)
+  const [hoveredHobby, setHoveredHobby] = useState(null)
+  
+  const softSkills = [
+    { icon: '◈', label: 'Leadership & Team Management', color: '#C8FF00' },
+    { icon: '⚡', label: 'Event Planning & Organization', color: '#FFB800' },
+    { icon: '⟨/⟩', label: 'Project Pitching & Presentation', color: '#00D4FF' },
+    { icon: '⛨', label: 'Cross-functional Collaboration', color: '#FF4444' }
+  ]
+  
+  const hobbies = [
+    { icon: '🎧', title: 'Audio Tuning', desc: 'IEMs, Parametric EQ, AutoEQ', color: '#00D4FF' },
+    { icon: '🎮', title: 'E-sports', desc: 'Mobile Legends: Bang Bang', color: '#FFB800' },
+    { icon: '🇯🇵', title: 'Learning Japanese', desc: 'Romaji & Conversational Grammar', color: '#FF4444' }
+  ]
   
   return (
-    <section id="experience" style={{ padding: 'clamp(80px,10vw,140px) clamp(20px,5vw,80px)', borderTop: '1px solid var(--border)', background: 'var(--surface)' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px,1fr))', gap: 'clamp(40px, 6vw, 80px)' }}>
+    <section id="experience" style={{ padding: 'clamp(80px,10vw,140px) clamp(20px,5vw,80px)', borderTop: '1px solid var(--border)', background: 'var(--surface)', position: 'relative', overflow: 'hidden' }}>
+      {/* Background decoration */}
+      <div style={{ position: 'absolute', bottom: '-30%', left: '-10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(200,255,0,0.03) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      
+      <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 'clamp(48px, 8vw, 100px)' }}>
+          {/* Leadership & Experience Column */}
           <div>
-            <div className="section-label reveal" style={{ marginBottom: '40px' }}>Leadership & Experience</div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              {experience.length === 0 ? (
-                <p style={{ color: 'var(--muted)', fontSize: '15px' }}>No experience entries yet.</p>
-              ) : experience.map((e, i) => (
-                <div key={e.id || `exp-${i}`} className="reveal" data-delay={i * 120} style={{ 
-                  padding: '24px', 
-                  background: 'var(--bg)', 
-                  borderRadius: '10px', 
-                  border: '1px solid var(--border)',
-                  borderLeft: '3px solid var(--accent)',
-                  transition: 'all 0.2s ease'
-                }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: '10px' }}>{e.period}</div>
-                  <div style={{ fontFamily: 'var(--font-syne)', fontWeight: 700, fontSize: '17px', color: 'var(--text)', marginBottom: '6px' }}>{e.title}</div>
-                  <div style={{ fontFamily: 'var(--font-body)', fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '12px', fontStyle: 'italic' }}>{e.org}</div>
-                  <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--muted)' }}>{e.description}</p>
-                </div>
-              ))}
+            <div className="section-label reveal" style={{ marginBottom: '48px' }}>Leadership & Experience</div>
+            
+            {/* Timeline container */}
+            <div style={{ position: 'relative' }}>
+              {/* Timeline line */}
+              <div style={{ 
+                position: 'absolute', 
+                left: '24px', 
+                top: '0', 
+                bottom: '0', 
+                width: '2px', 
+                background: 'linear-gradient(180deg, var(--accent) 0%, var(--accent)40 50%, transparent 100%)',
+                borderRadius: '1px'
+              }} />
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                {experience.length === 0 ? (
+                  <p style={{ color: 'var(--muted)', fontSize: '15px', paddingLeft: '64px' }}>No experience entries yet.</p>
+                ) : experience.map((e, i) => (
+                  <div 
+                    key={e.id || `exp-${i}`} 
+                    className="reveal experience-card"
+                    data-delay={i * 150}
+                    onMouseEnter={() => setHoveredExp(i)}
+                    onMouseLeave={() => setHoveredExp(null)}
+                    style={{ 
+                      position: 'relative',
+                      paddingLeft: '64px',
+                      cursor: 'default'
+                    }}
+                  >
+                    {/* Timeline node */}
+                    <div style={{ 
+                      position: 'absolute',
+                      left: '16px',
+                      top: '8px',
+                      width: '18px',
+                      height: '18px',
+                      borderRadius: '50%',
+                      background: hoveredExp === i ? 'var(--accent)' : 'var(--surface-2)',
+                      border: `3px solid ${hoveredExp === i ? 'var(--accent)' : 'var(--accent)60'}`,
+                      boxShadow: hoveredExp === i ? '0 0 20px var(--accent)60' : 'none',
+                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                      zIndex: 2
+                    }} />
+                    
+                    {/* Card */}
+                    <div style={{ 
+                      padding: '28px 32px', 
+                      background: hoveredExp === i 
+                        ? 'linear-gradient(145deg, var(--surface-2) 0%, var(--surface-3) 100%)' 
+                        : 'linear-gradient(145deg, var(--bg) 0%, var(--surface-2) 100%)',
+                      borderRadius: '14px', 
+                      border: `1px solid ${hoveredExp === i ? 'var(--accent)40' : 'var(--border)'}`,
+                      boxShadow: hoveredExp === i 
+                        ? '0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px var(--accent)20' 
+                        : '0 4px 20px rgba(0,0,0,0.2)',
+                      transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+                      transform: hoveredExp === i ? 'translateX(8px)' : 'translateX(0)',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}>
+                      {/* Glow effect on hover */}
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '2px',
+                        background: hoveredExp === i 
+                          ? 'linear-gradient(90deg, var(--accent) 0%, transparent 100%)' 
+                          : 'transparent',
+                        transition: 'all 0.3s ease'
+                      }} />
+                      
+                      <div style={{ 
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontFamily: 'var(--font-mono)', 
+                        fontSize: '11px', 
+                        letterSpacing: '0.12em', 
+                        textTransform: 'uppercase', 
+                        color: hoveredExp === i ? 'var(--accent)' : 'var(--muted)',
+                        marginBottom: '12px',
+                        padding: '6px 12px',
+                        background: hoveredExp === i ? 'var(--accent)15' : 'var(--surface-3)',
+                        borderRadius: '6px',
+                        transition: 'all 0.3s ease'
+                      }}>
+                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }} />
+                        {e.period}
+                      </div>
+                      
+                      <div style={{ 
+                        fontFamily: 'var(--font-syne)', 
+                        fontWeight: 800, 
+                        fontSize: '18px', 
+                        color: 'var(--text)', 
+                        marginBottom: '8px',
+                        letterSpacing: '-0.01em'
+                      }}>{e.title}</div>
+                      
+                      <div style={{ 
+                        fontFamily: 'var(--font-body)', 
+                        fontSize: '14px', 
+                        color: 'var(--text-secondary)', 
+                        marginBottom: '16px',
+                        fontWeight: 500
+                      }}>{e.org}</div>
+                      
+                      <p style={{ 
+                        fontSize: '14px', 
+                        lineHeight: 1.8, 
+                        color: 'var(--muted)',
+                        borderTop: '1px solid var(--border)',
+                        paddingTop: '16px'
+                      }}>{e.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
+          {/* Beyond the Screen Column */}
           <div>
-            <div className="section-label reveal" style={{ marginBottom: '40px' }}>Beyond the Screen</div>
+            <div className="section-label reveal" style={{ marginBottom: '48px' }}>Beyond the Screen</div>
 
-            <div className="reveal" data-delay="100" style={{ marginBottom: '48px' }}>
-              <div style={{ fontFamily: 'var(--font-syne)', fontWeight: 700, fontSize: '14px', color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '20px' }}>Soft Skills</div>
-              {['Leadership & Team Management', 'Event Planning & Organization', 'Project Pitching & Presentation', 'Cross-functional Collaboration'].map((s) => (
-                <div key={s} className="hover-lift" style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', marginBottom: '10px', background: 'var(--bg)', borderRadius: '6px', border: '1px solid var(--border)', transition: 'all 0.2s' }}>
-                  <span style={{ width: 8, height: 8, background: 'var(--accent)', flexShrink: 0, borderRadius: '2px' }} />
-                  <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>{s}</span>
-                </div>
-              ))}
+            {/* Soft Skills */}
+            <div className="reveal" data-delay="100" style={{ marginBottom: '56px' }}>
+              <div style={{ 
+                fontFamily: 'var(--font-syne)', 
+                fontWeight: 700, 
+                fontSize: '13px', 
+                color: 'var(--text)', 
+                textTransform: 'uppercase', 
+                letterSpacing: '0.1em', 
+                marginBottom: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <span style={{ width: '32px', height: '1px', background: 'var(--accent)' }} />
+                Soft Skills
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {softSkills.map((s, i) => (
+                  <div 
+                    key={s.label} 
+                    className="reveal soft-skill-item"
+                    data-delay={150 + i * 80}
+                    onMouseEnter={() => setHoveredSoft(i)}
+                    onMouseLeave={() => setHoveredSoft(null)}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '16px', 
+                      padding: '16px 20px', 
+                      background: hoveredSoft === i 
+                        ? 'linear-gradient(145deg, var(--surface-2) 0%, var(--surface-3) 100%)' 
+                        : 'var(--bg)', 
+                      borderRadius: '10px', 
+                      border: `1px solid ${hoveredSoft === i ? s.color + '40' : 'var(--border)'}`,
+                      boxShadow: hoveredSoft === i ? `0 4px 20px ${s.color}10` : 'none',
+                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                      transform: hoveredSoft === i ? 'translateX(8px)' : 'translateX(0)',
+                      cursor: 'default'
+                    }}
+                  >
+                    <div style={{ 
+                      width: '40px', 
+                      height: '40px', 
+                      borderRadius: '10px', 
+                      background: hoveredSoft === i ? `${s.color}25` : `${s.color}15`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '18px',
+                      color: s.color,
+                      border: `2px solid ${hoveredSoft === i ? s.color + '50' : s.color + '30'}`,
+                      transition: 'all 0.3s ease',
+                      transform: hoveredSoft === i ? 'scale(1.1) rotate(-5deg)' : 'scale(1) rotate(0deg)'
+                    }}>{s.icon}</div>
+                    <span style={{ 
+                      fontSize: '14px', 
+                      color: hoveredSoft === i ? 'var(--text)' : 'var(--text-secondary)',
+                      fontWeight: hoveredSoft === i ? 600 : 400,
+                      transition: 'all 0.3s ease'
+                    }}>{s.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="reveal" data-delay="200">
-              <div style={{ fontFamily: 'var(--font-syne)', fontWeight: 700, fontSize: '14px', color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '20px' }}>Hobbies & Interests</div>
-              {[{ icon: '🎧', text: 'Audio Tuning — IEMs, Parametric EQ, AutoEQ' }, { icon: '🎮', text: 'E-sports — Mobile Legends: Bang Bang' }, { icon: '🇯🇵', text: 'Learning Japanese — Romaji & Conversational Grammar' }].map((h) => (
-                <div key={h.text} className="hover-lift" style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', padding: '16px', marginBottom: '10px', border: '1px solid var(--border)', background: 'var(--bg)', borderRadius: '8px', transition: 'all 0.2s' }}>
-                  <span style={{ fontSize: '22px', flexShrink: 0 }}>{h.icon}</span>
-                  <span style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-secondary)' }}>{h.text}</span>
-                </div>
-              ))}
+            {/* Hobbies & Interests */}
+            <div className="reveal" data-delay="300">
+              <div style={{ 
+                fontFamily: 'var(--font-syne)', 
+                fontWeight: 700, 
+                fontSize: '13px', 
+                color: 'var(--text)', 
+                textTransform: 'uppercase', 
+                letterSpacing: '0.1em', 
+                marginBottom: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <span style={{ width: '32px', height: '1px', background: 'var(--accent)' }} />
+                Hobbies & Interests
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {hobbies.map((h, i) => (
+                  <div 
+                    key={h.title}
+                    className="reveal hobby-item"
+                    data-delay={400 + i * 100}
+                    onMouseEnter={() => setHoveredHobby(i)}
+                    onMouseLeave={() => setHoveredHobby(null)}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'flex-start', 
+                      gap: '16px', 
+                      padding: '20px', 
+                      background: hoveredHobby === i 
+                        ? 'linear-gradient(145deg, var(--surface-2) 0%, var(--surface-3) 100%)' 
+                        : 'var(--bg)', 
+                      borderRadius: '12px', 
+                      border: `1px solid ${hoveredHobby === i ? h.color + '40' : 'var(--border)'}`,
+                      boxShadow: hoveredHobby === i ? `0 4px 20px ${h.color}10` : 'none',
+                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                      transform: hoveredHobby === i ? 'translateY(-4px)' : 'translateY(0)',
+                      cursor: 'default'
+                    }}
+                  >
+                    <div style={{ 
+                      width: '48px', 
+                      height: '48px', 
+                      borderRadius: '12px', 
+                      background: hoveredHobby === i ? `${h.color}25` : `${h.color}15`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '26px',
+                      border: `2px solid ${hoveredHobby === i ? h.color + '50' : h.color + '30'}`,
+                      transition: 'all 0.3s ease',
+                      transform: hoveredHobby === i ? 'scale(1.15)' : 'scale(1)',
+                      flexShrink: 0
+                    }}>{h.icon}</div>
+                    <div>
+                      <div style={{ 
+                        fontSize: '15px', 
+                        fontWeight: 700,
+                        color: hoveredHobby === i ? 'var(--text)' : 'var(--text-secondary)',
+                        marginBottom: '4px',
+                        transition: 'all 0.3s ease'
+                      }}>{h.title}</div>
+                      <div style={{ 
+                        fontSize: '13px', 
+                        lineHeight: 1.5, 
+                        color: 'var(--muted)'
+                      }}>{h.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
