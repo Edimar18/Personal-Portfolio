@@ -1,0 +1,29 @@
+[browser] The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: []
+Incoming: [about,skills,projects,experience,contact] 
+    at useActiveSection (app/page.js:215:12)
+    at Home (app/page.js:1590:18)
+    at Set.forEach (<anonymous>)
+  213 | function useActiveSection(sections) {
+  214 |   const [active, setActive] = useState('')
+> 215 |   useEffect(() => {
+      |            ^
+  216 |     const obs = new IntersectionObserver(
+  217 |       (entries) => {
+  218 |         entries.forEach((e) => { (app/page.js:215:12)
+[browser] The final argument passed to useEffect changed size between renders. The order and size of this array must remain constant.
+
+Previous: [true]
+Incoming: [true, EDIMAR MOSQUIDA] 
+    at useScramble (app/page.js:191:12)
+    at Hero (app/page.js:504:16)
+    at Set.forEach (<anonymous>)
+  189 |   const [display, setDisplay] = useState(text)
+  190 |   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%'
+> 191 |   useEffect(() => {
+      |            ^
+  192 |     if (!trigger) return
+  193 |     let iteration = 0
+  194 |     const interval = setInterval(() => { (app/page.js:191:12)
+ GET / 200 in 380ms (next.js: 183ms, application-code: 198ms
