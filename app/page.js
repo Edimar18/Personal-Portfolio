@@ -686,6 +686,20 @@ function Experience({ data }) {
   const [hoveredExp, setHoveredExp] = useState(null)
   const [hoveredSoft, setHoveredSoft] = useState(null)
   const [hoveredHobby, setHoveredHobby] = useState(null)
+  const [visibleItems, setVisibleItems] = useState(new Set())
+  
+  // Track which items are visible for animation
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const newVisible = new Set()
+      experience.forEach((_, i) => {
+        setTimeout(() => {
+          setVisibleItems(prev => new Set([...prev, i]))
+        }, i * 150)
+      })
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [experience])
   
   const softSkills = [
     { icon: '◈', label: 'Leadership & Team Management', color: '#C8FF00' },
@@ -711,53 +725,63 @@ function Experience({ data }) {
           <div>
             <div className="section-label reveal" style={{ marginBottom: '48px' }}>Leadership & Experience</div>
             
-            {/* Timeline container */}
+            {/* Timeline container - dynamic height based on content */}
             <div style={{ position: 'relative' }}>
-              {/* Timeline line */}
+              {/* Timeline line - extends based on number of items */}
               <div style={{ 
                 position: 'absolute', 
                 left: '24px', 
-                top: '0', 
-                bottom: '0', 
+                top: '18px', 
+                height: experience.length > 1 ? `calc(100% - 36px)` : '0px',
                 width: '2px', 
-                background: 'linear-gradient(180deg, var(--accent) 0%, var(--accent)40 50%, transparent 100%)',
-                borderRadius: '1px'
+                background: experience.length > 1 
+                  ? 'linear-gradient(180deg, var(--accent) 0%, var(--accent)60 80%, transparent 100%)'
+                  : 'transparent',
+                borderRadius: '1px',
+                transition: 'height 0.5s ease'
               }} />
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 {experience.length === 0 ? (
-                  <p style={{ color: 'var(--muted)', fontSize: '15px', paddingLeft: '64px' }}>No experience entries yet.</p>
+                  <p style={{ color: 'var(--muted)', fontSize: '15px', paddingLeft: '64px' }}>No experience entries yet. Add some in the admin panel!</p>
                 ) : experience.map((e, i) => (
                   <div 
                     key={e.id || `exp-${i}`} 
-                    className="reveal experience-card"
-                    data-delay={i * 150}
+                    className="experience-card"
                     onMouseEnter={() => setHoveredExp(i)}
                     onMouseLeave={() => setHoveredExp(null)}
                     style={{ 
                       position: 'relative',
                       paddingLeft: '64px',
-                      cursor: 'default'
+                      cursor: 'default',
+                      opacity: visibleItems.has(i) ? 1 : 0,
+                      transform: visibleItems.has(i) ? 'translateX(0)' : 'translateX(-20px)',
+                      transition: `all 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.1}s`
                     }}
                   >
-                    {/* Timeline node */}
+                    {/* Timeline node with pulse animation */}
                     <div style={{ 
                       position: 'absolute',
                       left: '16px',
-                      top: '8px',
+                      top: '18px',
                       width: '18px',
                       height: '18px',
                       borderRadius: '50%',
                       background: hoveredExp === i ? 'var(--accent)' : 'var(--surface-2)',
                       border: `3px solid ${hoveredExp === i ? 'var(--accent)' : 'var(--accent)60'}`,
-                      boxShadow: hoveredExp === i ? '0 0 20px var(--accent)60' : 'none',
+                      boxShadow: hoveredExp === i 
+                        ? '0 0 20px var(--accent)60' 
+                        : visibleItems.has(i) 
+                          ? '0 0 10px var(--accent)30'
+                          : 'none',
                       transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                      zIndex: 2
+                      zIndex: 2,
+                      animation: visibleItems.has(i) ? 'nodePulse 2s ease-in-out infinite' : 'none'
                     }} />
                     
                     {/* Card */}
                     <div style={{ 
-                      padding: '28px 32px', 
+                      padding: '24px 28px', 
                       background: hoveredExp === i 
                         ? 'linear-gradient(145deg, var(--surface-2) 0%, var(--surface-3) 100%)' 
                         : 'linear-gradient(145deg, var(--bg) 0%, var(--surface-2) 100%)',
@@ -767,7 +791,7 @@ function Experience({ data }) {
                         ? '0 8px 32px rgba(0,0,0,0.3), 0 0 0 1px var(--accent)20' 
                         : '0 4px 20px rgba(0,0,0,0.2)',
                       transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                      transform: hoveredExp === i ? 'translateX(8px)' : 'translateX(0)',
+                      transform: hoveredExp === i ? 'translateX(8px) scale(1.01)' : 'translateX(0) scale(1)',
                       position: 'relative',
                       overflow: 'hidden'
                     }}>
@@ -799,7 +823,13 @@ function Experience({ data }) {
                         borderRadius: '6px',
                         transition: 'all 0.3s ease'
                       }}>
-                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor' }} />
+                        <span style={{ 
+                          width: '6px', 
+                          height: '6px', 
+                          borderRadius: '50%', 
+                          background: 'currentColor',
+                          animation: hoveredExp === i ? 'blink 1s ease-in-out infinite' : 'none'
+                        }} />
                         {e.period}
                       </div>
                       
@@ -816,16 +846,16 @@ function Experience({ data }) {
                         fontFamily: 'var(--font-body)', 
                         fontSize: '14px', 
                         color: 'var(--text-secondary)', 
-                        marginBottom: '16px',
+                        marginBottom: '12px',
                         fontWeight: 500
                       }}>{e.org}</div>
                       
                       <p style={{ 
                         fontSize: '14px', 
-                        lineHeight: 1.8, 
+                        lineHeight: 1.7, 
                         color: 'var(--muted)',
                         borderTop: '1px solid var(--border)',
-                        paddingTop: '16px'
+                        paddingTop: '12px'
                       }}>{e.description}</p>
                     </div>
                   </div>
@@ -1022,7 +1052,7 @@ function Contact({ data }) {
             EM<span style={{ color: 'var(--accent)' }}>.</span>
           </div>
           <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--muted)' }}>
-            © 2025 {personal.name || 'Edimar Mosquida'} · {personal.location || 'CDO, Philippines'}
+            © 2026 {personal.name || 'Edimar Mosquida'} · {personal.location || 'CDO, Philippines'}
           </div>
           <div style={{ display: 'flex', gap: '24px' }}>
             {['About', 'Skills', 'Projects', 'Contact'].map((l) => (

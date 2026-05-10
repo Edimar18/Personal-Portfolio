@@ -460,6 +460,25 @@ body:has(button:hover) .cursor-dot {
   z-index: 5;
 }
 
+/* ─── Timeline Node Animation ───────────── */
+@keyframes nodePulse {
+  0%, 100% {
+    box-shadow: 0 0 10px var(--accent)30;
+  }
+  50% {
+    box-shadow: 0 0 20px var(--accent)60, 0 0 30px var(--accent)30;
+  }
+}
+
+/* ─── Experience Card Animation ──────────── */
+.experience-card {
+  will-change: opacity, transform;
+}
+
+.experience-card:hover {
+  z-index: 10;
+}
+
 /* ─── Tag Chip Enhancements ──────────────── */
 .tag-chip {
   position: relative;
