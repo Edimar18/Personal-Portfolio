@@ -19,21 +19,28 @@ export default function Projects() {
           {projects.map((p, i) => (
             <ScrollReveal key={p.code} delay={i * 80} className="bg-paper">
               <article className="group relative h-[480px] md:h-[560px] overflow-hidden transition-transform duration-700 ease-plate hover:-translate-y-1.5">
-                {/* Visual-proof plate — swap with a real screenshot / build photo */}
-                <div className={`absolute inset-0 ${plateClass[p.plate]} transition-transform duration-[1200ms] ease-plate group-hover:scale-[1.04]`} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+                
+                {p.image ? (
+                  <img
+                    src={p.image}
+                    alt={p.name || `Project ${p.code}`}
+                    className="absolute inset-0 w-full h-full object-cover brightness-95 transition-transform duration-[1200ms] ease-plate group-hover:scale-[1.04]"
+                  />
+                ) : (
+                  <div className={`absolute inset-0 ${plateClass[p.plate]} transition-transform duration-[1200ms] ease-plate group-hover:scale-[1.04]`} />
+                )}
+                {/* Dual-direction scrims to protect text at top and bottom */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-60" />
 
                 {/* Index code */}
-                <span className="absolute top-5 left-5 font-mono text-[11px] tracking-widest2 text-paper/80">
+                <span className="absolute top-5 left-5 font-mono text-[11px] tracking-widest2 text-paper/80 drop-shadow-sm">
                   {p.code}
-                </span>
-                <span className="absolute top-5 right-5 font-mono text-[10px] tracking-widest2 uppercase text-paper/60">
-                  {p.plate} plate · replace image
                 </span>
 
                 {/* Info panel */}
                 <div className="absolute left-0 right-0 bottom-0 px-6 pb-6 pt-10 max-h-none lg:max-h-[78px] lg:group-hover:max-h-[420px] overflow-hidden transition-all duration-500 ease-plate">
-                  <h3 className="font-display font-black uppercase text-2xl md:text-3xl text-paper tracking-tightest leading-none">
+                  <h3 className="font-display font-black uppercase text-2xl md:text-3xl text-paper tracking-tightest leading-none drop-shadow-md">
                     {p.name}
                   </h3>
                   <p className="font-mono text-[10px] tracking-widest2 uppercase text-paper/70 mt-1.5">
