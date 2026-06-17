@@ -1,0 +1,109 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --grain-opacity: 0.05;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+body {
+  position: relative;
+}
+
+/* ---------------------------------------------------
+   Paper grain overlay — subtle SVG noise, fixed across
+   the whole page so every section reads as one sheet.
+--------------------------------------------------- */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.9 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 160px 160px;
+}
+
+/* ---------------------------------------------------
+   Scroll reveal — used by the ScrollReveal wrapper
+--------------------------------------------------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1), transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------------------------------------------------
+   Hairline rule — the recurring structural device
+--------------------------------------------------- */
+.hairline {
+  height: 1px;
+  background: linear-gradient(to right, transparent, #CFC9BC 8%, #CFC9BC 92%, transparent);
+}
+.hairline-solid {
+  height: 1px;
+  background: #CFC9BC;
+}
+
+/* ---------------------------------------------------
+   Placeholder "visual proof" plates.
+   These stand in for real photographs until you swap
+   them out — see PLACEHOLDER notes in /lib/data.js
+--------------------------------------------------- */
+.plate-circuit {
+  background-color: #15140F;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(244,242,237,0.07) 0px, rgba(244,242,237,0.07) 1px, transparent 1px, transparent 28px),
+    repeating-linear-gradient(90deg, rgba(244,242,237,0.07) 0px, rgba(244,242,237,0.07) 1px, transparent 1px, transparent 28px),
+    radial-gradient(circle at 22% 38%, rgba(244,242,237,0.35) 0 3px, transparent 4px),
+    radial-gradient(circle at 78% 62%, rgba(244,242,237,0.35) 0 3px, transparent 4px),
+    radial-gradient(circle at 60% 20%, rgba(244,242,237,0.35) 0 3px, transparent 4px);
+}
+
+.plate-scanline {
+  background-color: #15140F;
+  background-image:
+    repeating-linear-gradient(180deg, rgba(244,242,237,0.10) 0px, rgba(244,242,237,0.10) 2px, transparent 2px, transparent 10px),
+    linear-gradient(135deg, rgba(244,242,237,0.06), transparent 60%);
+}
+
+.plate-wireframe {
+  background-color: #15140F;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(244,242,237,0.08) 0px, rgba(244,242,237,0.08) 1px, transparent 1px, transparent 18px),
+    repeating-linear-gradient(90deg, rgba(244,242,237,0.08) 0px, rgba(244,242,237,0.08) 1px, transparent 1px, transparent 18px);
+}
+
+.plate-halftone {
+  background-color: #15140F;
+  background-image: radial-gradient(circle, rgba(244,242,237,0.5) 1.4px, transparent 1.5px);
+  background-size: 9px 9px;
+}
+
+.text-stroke {
+  -webkit-text-stroke: 1.5px var(--tw-text-stroke-color, #0E0E0D);
+  color: transparent;
+}
