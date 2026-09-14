@@ -2,6 +2,13 @@ import { certificates } from '@/lib/data';
 import ScrollReveal from './ScrollReveal';
 import SectionHeading from './SectionHeading';
 
+const plateClass = {
+  circuit: 'plate-circuit',
+  scanline: 'plate-scanline',
+  wireframe: 'plate-wireframe',
+  halftone: 'plate-halftone',
+};
+
 export default function Certificates() {
   const slots = certificates.length > 0 ? certificates : [null, null, null];
 
@@ -22,18 +29,31 @@ export default function Certificates() {
           {slots.map((c, i) =>
             c ? (
               <ScrollReveal key={c.name} delay={i * 60} className="bg-paper">
-                <div className="p-8 h-full flex flex-col justify-between min-h-[180px]">
-                  <span className="font-mono text-[10px] tracking-widest2 text-graphite">
+                <article className="relative p-8 h-full flex flex-col justify-between min-h-[220px] overflow-hidden group">
+                  {c.image ? (
+                    <>
+                      <img
+                        src={c.image}
+                        alt={c.name}
+                        className="absolute inset-0 w-full h-full object-cover brightness-[0.4] transition-transform duration-[1200ms] ease-plate group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    </>
+                  ) : (
+                    <div className={`absolute inset-0 opacity-5 ${plateClass[c.plate] || 'plate-halftone'}`} />
+                  )}
+
+                  <span className={`relative font-mono text-[10px] tracking-widest2 ${c.image ? 'text-paper/70' : 'text-graphite'}`}>
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <div>
-                    <h3 className="font-display font-black uppercase text-lg tracking-tightest leading-snug">
+                  <div className="relative">
+                    <h3 className={`font-display font-black uppercase text-lg tracking-tightest leading-snug ${c.image ? 'text-paper drop-shadow-md' : 'text-ink'}`}>
                       {c.name}
                     </h3>
-                    <p className="text-sm text-graphite mt-2">{c.org}</p>
-                    <p className="font-mono text-[10px] tracking-widest2 uppercase text-ash mt-1">{c.date}</p>
+                    <p className={`text-sm mt-2 ${c.image ? 'text-paper/80' : 'text-graphite'}`}>{c.org}</p>
+                    <p className={`font-mono text-[10px] tracking-widest2 uppercase mt-1 ${c.image ? 'text-paper/50' : 'text-ash'}`}>{c.date}</p>
                   </div>
-                </div>
+                </article>
               </ScrollReveal>
             ) : (
               <ScrollReveal key={`empty-${i}`} delay={i * 60} className="bg-paper">
