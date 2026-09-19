@@ -2,6 +2,7 @@ import Nav from '@/components/Nav';
 import SectionIndex from '@/components/SectionIndex';
 import Hero from '@/components/Hero';
 import Projects from '@/components/Projects';
+import TopcitCompetency from '@/components/TopcitCompetency';
 import Leadership from '@/components/Leadership';
 import Education from '@/components/Education';
 import SoftSkills from '@/components/SoftSkills';
@@ -17,6 +18,7 @@ export default function Home() {
       <main>
         <Hero />
         <Projects />
+        <TopcitCompetency />
         <Leadership />
         <Education />
         <SoftSkills />
